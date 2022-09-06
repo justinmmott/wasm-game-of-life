@@ -3,6 +3,12 @@
 use fixedbitset::FixedBitSet;
 use wasm_bindgen::prelude::*;
 
+// macro_rules! log {
+//     ( $( $t:tt )* ) => {
+//         web_sys::console::log_1(&format!( $( $t )* ).into());
+//     }
+// }
+
 #[wasm_bindgen]
 pub struct Universe {
     width: u32,
@@ -59,6 +65,14 @@ impl Universe {
                 let cell = self.cells[idx];
                 let live_neighbors = self.live_neighbor_count(row, col);
 
+                // log!(
+                //     "cell[{}, {}] is initially {:?} and has {} live neighbors",
+                //     row,
+                //     col,
+                //     cell,
+                //     live_neighbors
+                // );
+
                 next.set(
                     idx,
                     match (cell, live_neighbors) {
@@ -71,11 +85,23 @@ impl Universe {
                 );
             }
         }
-
+        // log!(
+        //     "prev: {}, \n next: {}",
+        //     next.to_string(),
+        //     self.cells.to_string()
+        // );
+        // let res = next
+        //     .symmetric_difference(&self.cells)
+        //     .collect::<FixedBitSet>()
+        //     .to_string();
+        // log!("res: {}", res);
         self.cells = next;
+        // return res;
     }
 
     pub fn new() -> Universe {
+        // console_error_panic_hook::set_once();
+
         let width = 128;
         let height = 128;
 
@@ -129,5 +155,10 @@ impl Universe {
             new_cells.set(i, false);
         }
         self.cells = new_cells;
+    }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells.toggle(idx);
     }
 }
